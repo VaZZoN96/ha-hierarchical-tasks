@@ -7,6 +7,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.typing import ConfigType
 
@@ -15,6 +16,9 @@ from .const import CARD_URL, CONF_EXAMPLE, CONF_SHARE, DOMAIN, SIGNAL_UPDATED, S
 from .model import TaskError, TaskManager, initial_data
 from .runtime import Runtime
 from .storage import read_document, write_document
+
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:

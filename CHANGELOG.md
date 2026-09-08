@@ -1,5 +1,14 @@
 # Changelog
 
+
+## 0.1.2
+
+- Fix hassfest CONFIG_SCHEMA requirement for config-entry-only integration.
+- Configure manifest metadata for VaZZoN96/ha-hierarchical-tasks.
+- Simplify hacs.json to supported required/minimum keys.
+- Update GitHub Actions checkout/setup actions to Node.js 24-capable major versions.
+- Add repository layout diagnostics to validation workflow.
+
 ## 0.1.1 - 2026-09-08
 
 Wydanie przygotowujące dystrybucję przez HACS; nadal do testów instalacyjnych.

@@ -1,4 +1,4 @@
-# Instalacja i aktualizacja - Hierarchical Tasks 0.1.1
+# Instalacja i aktualizacja - Hierarchical Tasks 0.1.2
 
 **Wymagana wersja zadeklarowana w HACS: Home Assistant 2026.9.0 lub nowszy.**
 To konserwatywny punkt odniesienia adapterów, nie gwarancja zgodności z każdą
@@ -39,7 +39,7 @@ Gdy nie widać tej pozycji, sprawdź tryb zaawansowany profilu administratora.
 Dodaj:
 
 ```text
-URL: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.1.1
+URL: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.1.2
 Typ: Moduł JavaScript / JavaScript Module
 ```
 
@@ -74,12 +74,12 @@ list_id: zakupy
 
 ## Aktualizacja z 0.1.0 bez utraty list
 
-Wydanie 0.1.1 zachowuje domenę `hierarchical_tasks`, format danych,
+Wydanie 0.1.2 zachowuje domenę `hierarchical_tasks`, format danych,
 identyfikatory, API i ścieżkę zapisu z 0.1.0.
 Nie jest wymagana migracja bazy.
 
 1. Zrób kopię zapasową HA i eksport list z karty.
-2. Dodaj opublikowane repozytorium w HACS jako Integration i pobierz 0.1.1.
+2. Dodaj opublikowane repozytorium w HACS jako Integration i pobierz 0.1.2.
    Jeśli HACS zgłosi istniejący folder z instalacji ręcznej, zachowaj kopię
    plików i usuń/zmień nazwę wyłącznie katalogu kodu
    `custom_components/hierarchical_tasks`, po zatrzymaniu HA. Przenieś kopię
@@ -93,7 +93,7 @@ Nie jest wymagana migracja bazy.
    /config/.storage/hierarchical_tasks.json
    ```
 
-4. Zrestartuj HA, zmień parametr istniejącego zasobu na `?v=0.1.1`
+4. Zrestartuj HA, zmień parametr istniejącego zasobu na `?v=0.1.2`
    i przeładuj frontend. Dotychczasowy YAML karty pozostaje poprawny.
 
 Plik z danymi leży poza katalogiem kodu aktualizowanym przez HACS.

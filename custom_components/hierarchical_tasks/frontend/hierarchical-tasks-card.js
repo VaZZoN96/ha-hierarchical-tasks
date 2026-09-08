@@ -1,7 +1,7 @@
-/* Hierarchical Tasks 0.1.1 | MIT | No CDN, npm package or external requests. */
+/* Hierarchical Tasks 0.1.2 | MIT | No CDN, npm package or external requests. */
 (() => {
   "use strict";
-  const VERSION = "0.1.1";
+  const VERSION = "0.1.2";
   const TYPE = "hierarchical-tasks-card";
   const API = "hierarchical_tasks";
   const CSS = `

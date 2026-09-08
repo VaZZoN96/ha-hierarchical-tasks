@@ -1,15 +1,8 @@
-# Repository metadata
+# Repozytorium
 
-Repository: [VaZZoN96/ha-hierarchical-tasks](https://github.com/VaZZoN96/ha-hierarchical-tasks)
+Pakiet jest skonfigurowany dla:
 
-Issue tracker: [https://github.com/VaZZoN96/ha-hierarchical-tasks/issues](https://github.com/VaZZoN96/ha-hierarchical-tasks/issues)
+`VaZZoN96/ha-hierarchical-tasks`
 
-Code owner: `@VaZZoN96`
-
-For HACS: Custom repositories > `https://github.com/VaZZoN96/ha-hierarchical-tasks` > **Integration**.
-
-These values were configured locally; this file is NOT evidence that the
-repository is public, reachable or has passed the official HACS checks.
-Enable Issues, add a description and topics on GitHub, then run Validate.
-
-See [PUBLISHING_HACS.md](PUBLISHING_HACS.md) for complete instructions.
+Manifest integracji, CODEOWNERS oraz adres zgłaszania błędów są już ustawione dla tego repozytorium.
+Workflow `Prepare repository` nie jest wymagany przy tym wydaniu; pozostaje jako narzędzie pomocnicze, jeśli projekt zostanie sforkowany lub przeniesiony.

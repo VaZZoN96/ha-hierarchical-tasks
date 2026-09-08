@@ -1,4 +1,4 @@
-# Publikacja w HACS - Hierarchical Tasks 0.1.1
+# Publikacja w HACS - Hierarchical Tasks 0.1.2
 
 Ta paczka zawiera **jedną integrację HA z dołączoną kartą**.
 HACS instaluje cały katalog `custom_components/hierarchical_tasks`, w tym kartę.
@@ -104,14 +104,14 @@ zachowaj log walidacji do analizy.
 
 ### 5. Opcjonalnie opublikuj wersję
 
-W **Releases > Draft a new release** utwórz tag `v0.1.1` wskazujący
+W **Releases > Draft a new release** utwórz tag `v0.1.2` wskazujący
 commit z prawdziwymi metadanymi. Opis skopiuj z `CHANGELOG.md`.
 Nie wystarczy sam tag: do wyboru wersji w HACS potrzebny jest Release.
 Bez Release HACS może pobrać zawartość gałęzi domyślnej.
 
 `zip_release` jest wyłączone: nie musisz załączać osobnego archiwum
 integracji jako zasobu Release. HACS pobiera pliki z repozytorium.
-Numer w `manifest.json`, `const.py` i karcie pozostaje `0.1.1`; tag może
+Numer w `manifest.json`, `const.py` i karcie pozostaje `0.1.2`; tag może
 mieć prefiks `v`. Nie twórz Release wskazującego commit sprzed konfiguracji.
 
 ## B. Alternatywa: jednorazowa konfiguracja na komputerze

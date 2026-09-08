@@ -1,4 +1,4 @@
-# Hierarchical Tasks 0.1.1
+# Hierarchical Tasks 0.1.2
 
 Lokalne listy z kategoriami, podkategoriami i zadaniami dla Home Assistant.
 W pakiecie: integracja Python, własna karta dashboardu, testy i przykłady.
@@ -22,7 +22,7 @@ Wymagana wersja zadeklarowana w `hacs.json`: **Home Assistant 2026.9.0+**.
 
 ## Status wydania
 
-**Wersja testowa 0.1.1. Zmiana dotyczy przygotowania publikacji w HACS,
+**Wersja testowa 0.1.2. Zmiana dotyczy przygotowania publikacji w HACS,
 nie modelu list ani formatu zapisanych danych.**
 
 Poprzednim punktem odniesienia adapterów pozostaje HA 2026.9.0.
@@ -142,7 +142,7 @@ Gdy tej pozycji nie widać, sprawdź tryb zaawansowany w profilu administratora.
 Dodaj zasób:
 
 ```text
-URL: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.1.1
+URL: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.1.2
 Typ: Moduł JavaScript / JavaScript Module
 ```
 
@@ -158,7 +158,7 @@ Dla konfiguracji zasobów przez YAML w aktualnym modelu HA:
 lovelace:
   resource_mode: yaml
   resources:
-    - url: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.1.1
+    - url: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.1.2
       type: module
 ```
 
