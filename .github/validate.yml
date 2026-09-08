@@ -1,0 +1,59 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Check package and real repository metadata
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: python tools/validate_package.py --repository "$REPOSITORY"
+      - name: Unit tests and syntax
+        run: |
+          python -m unittest discover -s tests -p 'test_*.py' -v
+          python -m compileall -q custom_components/hierarchical_tasks tools
+          node --check custom_components/hierarchical_tasks/frontend/hierarchical-tasks-card.js
+
+  hacs:
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Official HACS validator (no disabled checks)
+        uses: hacs/action@main
+        with:
+          category: integration
+          comment: 'false'
+
+  hassfest:
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Official Home Assistant hassfest
+        uses: home-assistant/actions/hassfest@master

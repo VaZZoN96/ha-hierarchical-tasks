@@ -1,0 +1,53 @@
+name: Prepare repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      codeowner:
+        description: Personal GitHub username (empty = user running this workflow)
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prepare-repository
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Configure real metadata
+        env:
+          REPOSITORY: ${{ github.repository }}
+          CODEOWNER: ${{ inputs.codeowner || github.actor }}
+        run: |
+          python tools/configure_repository.py "$REPOSITORY" --codeowner "$CODEOWNER"
+          python tools/validate_package.py --repository "$REPOSITORY"
+          python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Commit only repository metadata
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git add custom_components/hierarchical_tasks/manifest.json .github/CODEOWNERS REPOSITORY.md
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Configure Hierarchical Tasks repository metadata'
+            git push origin "HEAD:$DEFAULT_BRANCH"
+          fi
+      - name: Next step
+        run: |
+          echo '## Metadata prepared' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Now run Actions > Validate > Run workflow on the default branch.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'A commit made by GITHUB_TOKEN does not start a push workflow automatically.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'See PUBLISHING_HACS.md. No release was published by this workflow.' >> "$GITHUB_STEP_SUMMARY"
