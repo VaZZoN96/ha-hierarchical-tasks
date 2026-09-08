@@ -1,0 +1,250 @@
+{
+  "title": "Hierarchical Tasks",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hierarchical Tasks",
+        "description": "Local lists, categories and individually checkable tasks. One integration contains all your lists. Sharing is off by default.",
+        "data": {
+          "seed_example": "Create the example shopping list (only on first install)",
+          "share_with_users": "Share ALL lists with regular Home Assistant users"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Hierarchical Tasks is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Access to lists",
+        "description": "Off: administrators only. On: regular users can read/edit all lists; HA read-only users can only read. Restricted custom entity policies are not supported. No separate per-list permissions.",
+        "data": {
+          "share_with_users": "Share ALL lists with regular Home Assistant users"
+        }
+      }
+    }
+  },
+  "services": {
+    "create_list": {
+      "name": "Create list",
+      "description": "Create an empty list.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Visible name, from 1 to 200 characters."
+        }
+      }
+    },
+    "rename_list": {
+      "name": "Rename list",
+      "description": "Change the visible name, keeping the same ID.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Visible name, from 1 to 200 characters."
+        }
+      }
+    },
+    "delete_list": {
+      "name": "Delete list",
+      "description": "Delete the list and ALL of its contents.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        }
+      }
+    },
+    "add_item": {
+      "name": "Add item",
+      "description": "Add a task or category to a list.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        },
+        "kind": {
+          "name": "Kind",
+          "description": "task (default) or category. Only categories can contain children."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Visible name, from 1 to 200 characters."
+        },
+        "node_id": {
+          "name": "Item ID",
+          "description": "ID of the task/category. Omit for the whole list where supported. For add_item, omitted IDs are generated."
+        },
+        "parent_id": {
+          "name": "Parent category ID",
+          "description": "Existing category ID. Use null for the root level."
+        }
+      }
+    },
+    "rename_item": {
+      "name": "Rename item",
+      "description": "Rename a task or category, keeping its ID.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Visible name, from 1 to 200 characters."
+        },
+        "node_id": {
+          "name": "Item ID",
+          "description": "ID of the task/category. Omit for the whole list where supported. For add_item, omitted IDs are generated."
+        }
+      }
+    },
+    "delete_item": {
+      "name": "Delete item",
+      "description": "Delete a task or an entire category subtree.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        },
+        "node_id": {
+          "name": "Item ID",
+          "description": "ID of the task/category. Omit for the whole list where supported. For add_item, omitted IDs are generated."
+        }
+      }
+    },
+    "move_item": {
+      "name": "Move item",
+      "description": "Move a subtree within a list or to another list. Cycles are rejected.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        },
+        "node_id": {
+          "name": "Item ID",
+          "description": "ID of the task/category. Omit for the whole list where supported. For add_item, omitted IDs are generated."
+        },
+        "parent_id": {
+          "name": "Parent category ID",
+          "description": "Existing category ID. Use null for the root level."
+        },
+        "position": {
+          "name": "Position",
+          "description": "Zero-based final position among destination siblings. Omit to append."
+        },
+        "target_list_id": {
+          "name": "Target list ID",
+          "description": "Destination list. Omit to move within the same list."
+        }
+      }
+    },
+    "set_completed": {
+      "name": "Set completed",
+      "description": "Set completion of a task, category subtree, or whole list.",
+      "fields": {
+        "completed": {
+          "name": "Completed",
+          "description": "true completes tasks, false resets them. A category applies recursively to its tasks."
+        },
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        },
+        "node_id": {
+          "name": "Item ID",
+          "description": "ID of the task/category. Omit for the whole list where supported. For add_item, omitted IDs are generated."
+        }
+      }
+    },
+    "clear_completed": {
+      "name": "Clear completed",
+      "description": "Delete completed tasks only. Keep all categories and pending tasks.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        },
+        "node_id": {
+          "name": "Item ID",
+          "description": "ID of the task/category. Omit for the whole list where supported. For add_item, omitted IDs are generated."
+        }
+      }
+    },
+    "import_data": {
+      "name": "Import data",
+      "description": "Replace ALL lists with an exported document. Admin only. Export first.",
+      "fields": {
+        "document": {
+          "name": "Exported document",
+          "description": "Full document from Export/get_data. Replaces ALL lists. Admin only."
+        },
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        }
+      }
+    },
+    "undo": {
+      "name": "Undo",
+      "description": "Undo your own most recent change, only if no newer change exists. One step, lost on restart.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optimistic concurrency check. Required for undo and import_data. Get the revision with get_data."
+        }
+      }
+    },
+    "get_data": {
+      "name": "Get data",
+      "description": "Return the current revision and all lists. Requires response data.",
+      "fields": {}
+    }
+  }
+}

@@ -1,0 +1,6 @@
+action: hierarchical_tasks.add_item
+data:
+  list_id: zakupy
+  parent_id: warzywniak
+  name: Pomidory
+  kind: task

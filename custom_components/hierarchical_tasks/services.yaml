@@ -1,0 +1,327 @@
+create_list:
+  name: Create list
+  description: Create an empty list.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    list_id:
+      name: List ID
+      description: ID of the list, e.g. zakupy. For create_list, omitted IDs are generated.
+      required: false
+      selector:
+        text: {}
+    name:
+      name: Name
+      description: Visible name, from 1 to 200 characters.
+      required: true
+      selector:
+        text: {}
+rename_list:
+  name: Rename list
+  description: Change the visible name, keeping the same ID.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    list_id:
+      name: List ID
+      description: ID of the list, e.g. zakupy. For create_list, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+    name:
+      name: Name
+      description: Visible name, from 1 to 200 characters.
+      required: true
+      selector:
+        text: {}
+delete_list:
+  name: Delete list
+  description: Delete the list and ALL of its contents.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    list_id:
+      name: List ID
+      description: ID of the list, e.g. zakupy. For create_list, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+add_item:
+  name: Add item
+  description: Add a task or category to a list.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    kind:
+      name: Kind
+      description: task (default) or category. Only categories can contain children.
+      required: false
+      selector:
+        select:
+          options:
+          - task
+          - category
+    list_id:
+      name: List ID
+      description: ID of the list, e.g. zakupy. For create_list, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+    name:
+      name: Name
+      description: Visible name, from 1 to 200 characters.
+      required: true
+      selector:
+        text: {}
+    node_id:
+      name: Item ID
+      description: ID of the task/category. Omit for the whole list where supported.
+        For add_item, omitted IDs are generated.
+      required: false
+      selector:
+        text: {}
+    parent_id:
+      name: Parent category ID
+      description: Existing category ID. Use null for the root level.
+      required: false
+      selector:
+        text: {}
+rename_item:
+  name: Rename item
+  description: Rename a task or category, keeping its ID.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    list_id:
+      name: List ID
+      description: ID of the list, e.g. zakupy. For create_list, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+    name:
+      name: Name
+      description: Visible name, from 1 to 200 characters.
+      required: true
+      selector:
+        text: {}
+    node_id:
+      name: Item ID
+      description: ID of the task/category. Omit for the whole list where supported.
+        For add_item, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+delete_item:
+  name: Delete item
+  description: Delete a task or an entire category subtree.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    list_id:
+      name: List ID
+      description: ID of the list, e.g. zakupy. For create_list, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+    node_id:
+      name: Item ID
+      description: ID of the task/category. Omit for the whole list where supported.
+        For add_item, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+move_item:
+  name: Move item
+  description: Move a subtree within a list or to another list. Cycles are rejected.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    list_id:
+      name: List ID
+      description: ID of the list, e.g. zakupy. For create_list, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+    node_id:
+      name: Item ID
+      description: ID of the task/category. Omit for the whole list where supported.
+        For add_item, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+    parent_id:
+      name: Parent category ID
+      description: Existing category ID. Use null for the root level.
+      required: true
+      selector:
+        text: {}
+    position:
+      name: Position
+      description: Zero-based final position among destination siblings. Omit to append.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2000
+          mode: box
+    target_list_id:
+      name: Target list ID
+      description: Destination list. Omit to move within the same list.
+      required: false
+      selector:
+        text: {}
+set_completed:
+  name: Set completed
+  description: Set completion of a task, category subtree, or whole list.
+  fields:
+    completed:
+      name: Completed
+      description: true completes tasks, false resets them. A category applies recursively
+        to its tasks.
+      required: true
+      selector:
+        boolean: {}
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    list_id:
+      name: List ID
+      description: ID of the list, e.g. zakupy. For create_list, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+    node_id:
+      name: Item ID
+      description: ID of the task/category. Omit for the whole list where supported.
+        For add_item, omitted IDs are generated.
+      required: false
+      selector:
+        text: {}
+clear_completed:
+  name: Clear completed
+  description: Delete completed tasks only. Keep all categories and pending tasks.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    list_id:
+      name: List ID
+      description: ID of the list, e.g. zakupy. For create_list, omitted IDs are generated.
+      required: true
+      selector:
+        text: {}
+    node_id:
+      name: Item ID
+      description: ID of the task/category. Omit for the whole list where supported.
+        For add_item, omitted IDs are generated.
+      required: false
+      selector:
+        text: {}
+import_data:
+  name: Import data
+  description: Replace ALL lists with an exported document. Admin only. Export first.
+  fields:
+    document:
+      name: Exported document
+      description: Full document from Export/get_data. Replaces ALL lists. Admin only.
+      required: true
+      selector:
+        object: {}
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+undo:
+  name: Undo
+  description: Undo your own most recent change, only if no newer change exists. One
+    step, lost on restart.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optimistic concurrency check. Required for undo and import_data.
+        Get the revision with get_data.
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+get_data:
+  name: Get data
+  description: Return the current revision and all lists. Requires response data.

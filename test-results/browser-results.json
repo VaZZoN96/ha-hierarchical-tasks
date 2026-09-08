@@ -1,0 +1,58 @@
+[
+  {
+    "name": "case_checkbox",
+    "passed": true
+  },
+  {
+    "name": "case_hidden_and_empty",
+    "passed": true
+  },
+  {
+    "name": "case_add_and_draft_conflict",
+    "passed": true
+  },
+  {
+    "name": "case_delete_undo",
+    "passed": true
+  },
+  {
+    "name": "case_mobile_move",
+    "passed": true
+  },
+  {
+    "name": "case_drag_drop",
+    "passed": true
+  },
+  {
+    "name": "case_two_cards_and_cleanup",
+    "passed": true
+  },
+  {
+    "name": "case_disconnect_reconnect",
+    "passed": true
+  },
+  {
+    "name": "case_html_is_text",
+    "passed": true
+  },
+  {
+    "name": "case_readonly",
+    "passed": true
+  },
+  {
+    "name": "case_missing_fixed_list",
+    "passed": true
+  },
+  {
+    "name": "case_keyboard_and_clear",
+    "passed": true
+  },
+  {
+    "name": "case_export_import",
+    "passed": true
+  },
+  {
+    "name": "case_mobile_layout_preview",
+    "passed": true
+  }
+]

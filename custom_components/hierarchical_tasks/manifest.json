@@ -1,0 +1,19 @@
+{
+  "domain": "hierarchical_tasks",
+  "name": "Hierarchical Tasks",
+  "codeowners": [
+    "@YOUR_GITHUB_USERNAME"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "http",
+    "websocket_api"
+  ],
+  "documentation": "https://github.com/YOUR_GITHUB_USERNAME/ha-hierarchical-tasks",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/YOUR_GITHUB_USERNAME/ha-hierarchical-tasks/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.1"
+}

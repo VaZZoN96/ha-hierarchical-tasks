@@ -1,0 +1,19 @@
+YAML OK .github/dependabot.yml
+YAML OK .github/workflows/prepare-repository.yml
+YAML OK .github/workflows/validate.yml
+JSON OK custom_components/hierarchical_tasks/manifest.json
+YAML OK custom_components/hierarchical_tasks/services.yaml
+JSON OK custom_components/hierarchical_tasks/strings.json
+JSON OK custom_components/hierarchical_tasks/translations/en.json
+JSON OK custom_components/hierarchical_tasks/translations/pl.json
+YAML OK examples/add-item.yaml
+YAML OK examples/card-shopping.yaml
+YAML OK examples/card.yaml
+YAML OK examples/complete-category.yaml
+YAML OK examples/reset-category.yaml
+YAML OK examples/resource.yaml
+JSON OK hacs.json
+JSON OK test-results/browser-results.json
+JSON OK test-results/runtime-diff.json
+node --check: PASS
+Python source compilation: PASS

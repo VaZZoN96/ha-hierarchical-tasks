@@ -1,0 +1,5 @@
+action: hierarchical_tasks.set_completed
+data:
+  list_id: zakupy
+  node_id: warzywniak
+  completed: false

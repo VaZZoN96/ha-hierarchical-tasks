@@ -1,0 +1,7 @@
+PASS: One integration; frontend and brand assets are inside its directory
+PASS: JSON files parse; HACS manifest matches the source-directory layout
+PASS: TEMPLATE ONLY: real repository metadata still must be configured before HACS
+PASS: Version 0.1.1 agrees across backend, card and resource example; storage path preserved
+PASS: Local brand icons have valid PNG headers and square dimensions
+PASS: Integration Python source compiles without importing Home Assistant
+Offline checks only. Run the official HACS/hassfest workflow on your public repository.

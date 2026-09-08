@@ -1,0 +1,25 @@
+{
+  "baseline": "0.1.0",
+  "release": "0.1.1",
+  "unchanged_files": [
+    "custom_components/hierarchical_tasks/__init__.py",
+    "custom_components/hierarchical_tasks/config_flow.py",
+    "custom_components/hierarchical_tasks/model.py",
+    "custom_components/hierarchical_tasks/runtime.py",
+    "custom_components/hierarchical_tasks/services.py",
+    "custom_components/hierarchical_tasks/services.yaml",
+    "custom_components/hierarchical_tasks/storage.py",
+    "custom_components/hierarchical_tasks/strings.json",
+    "custom_components/hierarchical_tasks/translations/en.json",
+    "custom_components/hierarchical_tasks/translations/pl.json",
+    "custom_components/hierarchical_tasks/websocket.py"
+  ],
+  "changed_existing_files": [
+    "custom_components/hierarchical_tasks/const.py",
+    "custom_components/hierarchical_tasks/frontend/hierarchical-tasks-card.js",
+    "custom_components/hierarchical_tasks/manifest.json"
+  ],
+  "javascript_change_is_version_only": true,
+  "const_change_is_version_only": true,
+  "model_storage_api_and_authentication_unchanged": true
+}

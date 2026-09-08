@@ -1,0 +1,10 @@
+"""Integration constants."""
+DOMAIN = "hierarchical_tasks"
+NAME = "Hierarchical Tasks"
+VERSION = "0.1.1"
+API_VERSION = 1
+STORAGE_FILE = ".storage/hierarchical_tasks.json"
+CARD_URL = "/hierarchical_tasks/hierarchical-tasks-card.js"
+SIGNAL_UPDATED = f"{DOMAIN}_updated"
+CONF_SHARE = "share_with_users"
+CONF_EXAMPLE = "seed_example"

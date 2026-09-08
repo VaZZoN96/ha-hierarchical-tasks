@@ -1,0 +1,4 @@
+type: custom:hierarchical-tasks-card
+title: Zadania
+hide_completed: false
+confirm_bulk: true

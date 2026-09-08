@@ -1,0 +1,5 @@
+type: custom:hierarchical-tasks-card
+title: Zakupy
+list_id: zakupy
+hide_completed: false
+confirm_bulk: true

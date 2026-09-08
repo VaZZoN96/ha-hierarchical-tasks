@@ -1,0 +1,3 @@
+# Dashboard resource; add in Settings > Dashboards > Resources.
+url: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.1.1
+type: module

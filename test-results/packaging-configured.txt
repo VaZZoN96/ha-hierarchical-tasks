@@ -1,0 +1,10 @@
+Offline fixture only: example-user is a test string, not a published project.
+Updated custom_components/hierarchical_tasks/manifest.json
+Updated .github/CODEOWNERS
+Updated REPOSITORY.md
+PASS: One integration; frontend and brand assets are inside its directory
+PASS: JSON files parse; HACS manifest matches the source-directory layout
+PASS: Repository links and code owners are configured consistently (syntax only)
+PASS: Version 0.1.1 agrees across backend, card and resource example; storage path preserved
+PASS: Local brand icons have valid PNG headers and square dimensions
+PASS: Integration Python source compiles without importing Home Assistant
