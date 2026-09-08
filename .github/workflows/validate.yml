@@ -17,15 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
+      - name: Check HACS repository layout
+        run: |
+          test -f hacs.json
+          test -f custom_components/hierarchical_tasks/manifest.json
+          echo "manifest files:"
+          find custom_components -name manifest.json -print
+          python -m json.tool hacs.json >/dev/null
+          python -m json.tool custom_components/hierarchical_tasks/manifest.json >/dev/null
       - name: Check package and real repository metadata
         env:
           REPOSITORY: ${{ github.repository }}
@@ -52,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Official Home Assistant hassfest
