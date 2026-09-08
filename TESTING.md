@@ -1,4 +1,4 @@
-# Walidacja wydania 0.2.0
+# Walidacja wydania 0.2.1
 
 Data: 2026-09-08.
 
@@ -13,7 +13,7 @@ Data: 2026-09-08.
   zapis ACL w modelu.
 - `node --check` dla karty.
 - offline `tools/validate_package.py --repository VaZZoN96/ha-hierarchical-tasks`.
-- kontrola spójności wersji 0.2.0 w `manifest.json`, `const.py` i karcie.
+- kontrola spójności wersji 0.2.1 w `manifest.json`, `const.py` i karcie.
 
 Środowisko testu przeglądarkowego: Chromium 144.0.7559.96, Linux.
 
@@ -25,7 +25,7 @@ Logika hierarchii, mutacje i sam JavaScript karty są rzeczywiste.
 
 ## Czego jeszcze nie potwierdzono
 
-- instalacji/aktualizacji 0.2.0 w rzeczywistej instancji HA przez HACS,
+- instalacji/aktualizacji 0.2.1 w rzeczywistej instancji HA przez HACS,
 - oficjalnego hassfest/HACS po opublikowaniu tego commita,
 - rzeczywistego pobierania użytkowników przez `hass.auth.async_get_users()` w Twojej instancji,
 - Safari/iOS i aplikacji mobilnej HA.

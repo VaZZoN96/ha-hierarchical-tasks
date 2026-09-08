@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+- Usunięto komunikat sukcesu `Zapisano.` po zwykłych edycjach; błędy nadal są wyświetlane.
+- Typografia karty korzysta z tokenów Home Assistant (`--ha-font-family-*`, `--ha-font-size-*`, `--ha-font-weight-*`, `--ha-line-height-*`) z bezpiecznymi fallbackami.
+- Tytuł karty korzysta z tokenów nagłówka `ha-card`, więc respektuje motyw i skalowanie tekstu Home Assistanta.
+
 ## 0.2.0
 
 - dodano ACL per lista i per użytkownik Home Assistant,

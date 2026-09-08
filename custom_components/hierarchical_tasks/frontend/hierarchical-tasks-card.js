@@ -1,16 +1,31 @@
-/* Hierarchical Tasks 0.2.0 | MIT | No CDN, npm package or external requests. */
+/* Hierarchical Tasks 0.2.1 | MIT | No CDN, npm package or external requests. */
 (() => {
   "use strict";
-  const VERSION = "0.2.0";
+  const VERSION = "0.2.1";
   const TYPE = "hierarchical-tasks-card";
   const API = "hierarchical_tasks";
   const CSS = `
-    :host { display:block; --ht-gap:12px; color:var(--primary-text-color,#212121); }
+    :host {
+      display:block; --ht-gap:12px; color:var(--primary-text-color,#212121);
+      font-family:var(--ha-font-family-body, Roboto, Noto, sans-serif);
+      font-size:var(--ha-font-size-m,14px);
+      font-weight:var(--ha-font-weight-normal,400);
+      line-height:var(--ha-line-height-normal,1.6);
+      -webkit-font-smoothing:var(--ha-font-smoothing,antialiased);
+      -moz-osx-font-smoothing:var(--ha-moz-osx-font-smoothing,grayscale);
+    }
     * { box-sizing:border-box; }
     ha-card { display:block; overflow:hidden; padding:18px; }
     header { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:14px; }
-    h2 { margin:0; font-size:22px; line-height:1.3; font-weight:600; }
-    .muted { color:var(--secondary-text-color,#666); font-size:12px; line-height:1.5; }
+    h2 {
+      margin:0;
+      font-family:var(--ha-card-header-font-family,var(--ha-font-family-heading,var(--ha-font-family-body,Roboto,Noto,sans-serif)));
+      font-size:var(--ha-card-header-font-size,var(--ha-font-size-2xl,24px));
+      line-height:var(--ha-line-height-condensed,1.2);
+      font-weight:var(--ha-font-weight-normal,400);
+      letter-spacing:-0.012em;
+    }
+    .muted { color:var(--secondary-text-color,#666); font-size:var(--ha-font-size-s,12px); line-height:var(--ha-line-height-normal,1.6); }
     .top, .toolbar, .actions, .dialog-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
     .top { margin-bottom:10px; }
     .top select { flex:1; min-width:100px; }
@@ -22,14 +37,14 @@
     button:disabled, input:disabled, select:disabled { cursor:default; opacity:.45; }
     button.primary { background:var(--primary-color,#03a9f4); color:var(--text-primary-color,#fff); border-color:transparent; }
     button.danger { color:var(--error-color,#db4437); }
-    .icon { width:42px; padding:0; flex:0 0 42px; border:0; font-size:21px; }
+    .icon { width:42px; padding:0; flex:0 0 42px; border:0; font-size:var(--ha-font-size-xl,20px); }
     input:not([type=checkbox]), select { min-height:44px; padding:9px 10px; border:1px solid var(--divider-color,#ddd);
       border-radius:9px; background:var(--card-background-color,#fff); min-width:0; max-width:100%; }
     input[type=checkbox] { width:22px; height:22px; accent-color:var(--primary-color,#03a9f4); cursor:pointer; margin:0; }
     .toolbar { padding-bottom:12px; margin-bottom:6px; border-bottom:1px solid var(--divider-color,#ddd); }
-    .toolbar button { font-size:12px; min-height:38px; }
-    .filter { display:flex; gap:8px; align-items:center; min-height:42px; font-size:13px; }
-    .notice { font-size:13px; line-height:1.45; margin:8px 0; padding:9px 11px; border-radius:8px;
+    .toolbar button { font-size:var(--ha-font-size-s,12px); min-height:38px; }
+    .filter { display:flex; gap:8px; align-items:center; min-height:42px; font-size:var(--ha-font-size-m,14px); }
+    .notice { font-size:var(--ha-font-size-m,14px); line-height:var(--ha-line-height-normal,1.6); margin:8px 0; padding:9px 11px; border-radius:8px;
       background:var(--secondary-background-color,#f3f3f3); overflow-wrap:anywhere; }
     .notice:empty { display:none; }
     .notice.error { color:var(--error-color,#db4437); }
@@ -38,16 +53,16 @@
     .row.category { background:var(--secondary-background-color,#f5f5f5); margin-top:8px; }
     .row.drop-target { outline:2px dashed var(--primary-color,#03a9f4); }
     .row .fold, .row .spacer { flex:0 0 30px; width:30px; }
-    .row .fold { padding:0; border:0; background:transparent; font-size:18px; min-height:44px; }
+    .row .fold { padding:0; border:0; background:transparent; font-size:var(--ha-font-size-l,16px); min-height:44px; }
     .check { display:flex; align-items:center; justify-content:center; flex:0 0 40px; min-height:44px; }
     .name { text-align:start; overflow-wrap:anywhere; flex:1; min-width:0; border:0; background:transparent;
-      padding:10px 3px; font-size:15px; border-radius:0; }
-    .category .name { font-weight:600; font-size:13px; letter-spacing:.3px; }
+      padding:10px 3px; font-size:var(--ha-font-size-m,14px); font-weight:var(--ha-font-weight-normal,400); border-radius:0; }
+    .category .name { font-weight:var(--ha-font-weight-medium,500); font-size:var(--ha-font-size-m,14px); letter-spacing:.1px; }
     .done .name { text-decoration:line-through; color:var(--secondary-text-color,#777); }
-    .count { flex:0 0 auto; font-size:12px; padding:0 5px; color:var(--secondary-text-color,#666); }
-    .row .menu { flex:0 0 36px; width:36px; font-size:23px; padding:0; border:0; background:transparent; min-height:44px; }
+    .count { flex:0 0 auto; font-size:var(--ha-font-size-s,12px); padding:0 5px; color:var(--secondary-text-color,#666); }
+    .row .menu { flex:0 0 36px; width:36px; font-size:var(--ha-font-size-2xl,24px); padding:0; border:0; background:transparent; min-height:44px; }
     .category-add { display:flex; flex-wrap:wrap; gap:2px; padding:2px 0 5px 0; }
-    .category-add button { font-size:12px; border:0; color:var(--primary-color,#0288d1); min-height:38px; }
+    .category-add button { font-size:var(--ha-font-size-s,12px); font-weight:var(--ha-font-weight-medium,500); border:0; color:var(--primary-color,#0288d1); min-height:38px; }
     .empty { padding:22px 8px; text-align:center; color:var(--secondary-text-color,#666); line-height:1.6; }
     .actions { margin-top:14px; }
     .footer { display:flex; justify-content:space-between; gap:10px; margin-top:12px; }
@@ -56,9 +71,9 @@
       border-radius:16px; background:var(--card-background-color,#fff); color:var(--primary-text-color,#212121);
       box-shadow:0 12px 48px #0005; }
     dialog::backdrop { background:#0006; }
-    dialog h3 { font-size:19px; margin:0 0 14px; overflow-wrap:anywhere; }
-    dialog p { line-height:1.5; overflow-wrap:anywhere; }
-    dialog label.field { display:flex; flex-direction:column; gap:6px; margin:12px 0; font-size:13px; }
+    dialog h3 { font-family:var(--ha-font-family-heading,var(--ha-font-family-body,Roboto,Noto,sans-serif)); font-size:var(--ha-font-size-l,16px); font-weight:var(--ha-font-weight-normal,400); line-height:var(--ha-line-height-normal,1.6); margin:0 0 14px; overflow-wrap:anywhere; }
+    dialog p { line-height:var(--ha-line-height-normal,1.6); overflow-wrap:anywhere; }
+    dialog label.field { display:flex; flex-direction:column; gap:6px; margin:12px 0; font-size:var(--ha-font-size-m,14px); }
     dialog label.field input, dialog label.field select { width:100%; }
     .dialog-actions { justify-content:flex-end; margin-top:18px; }
     .menu-actions { display:grid; gap:8px; }
@@ -68,11 +83,11 @@
     .share-row strong, .share-row span { overflow-wrap:anywhere; }
     .share-row select { width:100%; }
     @media (max-width:420px) { .share-row { grid-template-columns:1fr; } }
-    .dialog-error { color:var(--error-color,#db4437); font-size:13px; line-height:1.5; }
+    .dialog-error { color:var(--error-color,#db4437); font-size:var(--ha-font-size-m,14px); line-height:var(--ha-line-height-normal,1.6); }
     .dialog-error:empty { display:none; }
-    .id-field { width:100%; font-family:monospace; font-size:12px !important; }
+    .id-field { width:100%; font-family:var(--ha-font-family-code,monospace); font-size:var(--ha-font-size-s,12px) !important; }
     progress { width:100%; height:5px; display:block; margin:0 0 10px; accent-color:var(--primary-color,#03a9f4); }
-    @media (max-width:400px) { ha-card { padding:12px; } h2 { font-size:20px; } .row .spacer, .row .fold { width:24px; flex-basis:24px; } }
+    @media (max-width:400px) { ha-card { padding:12px; } .row .spacer, .row .fold { width:24px; flex-basis:24px; } }
   `;
 
   function el(tag, className, text) {
@@ -404,7 +419,7 @@
       try {
         await this._connection.sendMessagePromise({ type: `${API}/mutate`, operation, data, expected_revision: revision });
         await this._refresh();
-        this._notice = "Zapisano."; this._error = false;
+        this._notice = ""; this._error = false;
         return true;
       } catch (error) {
         if (error?.code === "conflict") await this._refresh().catch(() => {});

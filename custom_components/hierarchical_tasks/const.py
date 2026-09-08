@@ -1,7 +1,7 @@
 """Integration constants."""
 DOMAIN = "hierarchical_tasks"
 NAME = "Hierarchical Tasks"
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 API_VERSION = 2
 STORAGE_FILE = ".storage/hierarchical_tasks.json"
 CARD_URL = "/hierarchical_tasks/hierarchical-tasks-card.js"

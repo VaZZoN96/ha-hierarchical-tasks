@@ -1,4 +1,4 @@
-# Hierarchical Tasks 0.2.0
+# Hierarchical Tasks 0.2.1
 
 Hierarchiczne listy zadań dla Home Assistant: listy, kategorie, podkategorie,
 pojedyncze zadania, trójstanowe checkboxy kategorii i współdzielenie per lista.

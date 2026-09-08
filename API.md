@@ -1,4 +1,4 @@
-# Hierarchical Tasks API - 0.2.0
+# Hierarchical Tasks API - 0.2.1
 
 Integracja udostępnia akcje w domenie `hierarchical_tasks` oraz prywatne komendy
 WebSocket używane przez dołączoną kartę.

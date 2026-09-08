@@ -1,4 +1,4 @@
-# Instalacja i aktualizacja - Hierarchical Tasks 0.2.0
+# Instalacja i aktualizacja - Hierarchical Tasks 0.2.1
 
 ## HACS
 
@@ -20,7 +20,7 @@ kartę podczas startu HA.
 
 ## Aktualizacja z 0.1.x i błąd "Custom element doesn't exist"
 
-Po zainstalowaniu 0.2.0:
+Po zainstalowaniu 0.2.1:
 
 1. Wejdź w **Ustawienia -> Dashboardy -> Zasoby / Resources**.
 2. Usuń ręczny wpis zaczynający się od
@@ -31,7 +31,7 @@ Po zainstalowaniu 0.2.0:
 5. Użyj karty `type: custom:hierarchical-tasks-card`.
 
 Jeśli błąd pozostaje, otwórz w przeglądarce:
-`/hierarchical_tasks/hierarchical-tasks-card.js?v=0.2.0`. Powinien pojawić się kod JS,
+`/hierarchical_tasks/hierarchical-tasks-card.js?v=0.2.1`. Powinien pojawić się kod JS,
 a nie 404. Sprawdź też log Home Assistant podczas startu integracji.
 
 ## Tworzenie list
