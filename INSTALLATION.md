@@ -1,120 +1,72 @@
-# Instalacja i aktualizacja - Hierarchical Tasks 0.1.2
+# Instalacja i aktualizacja - Hierarchical Tasks 0.2.0
 
-**Wymagana wersja zadeklarowana w HACS: Home Assistant 2026.9.0 lub nowszy.**
-To konserwatywny punkt odniesienia adapterów, nie gwarancja zgodności z każdą
-późniejszą wersją HA. Nadal jest to wydanie do testów.
-Przed instalacją wykonaj kopię zapasową konfiguracji HA.
+## HACS
 
-## 1. Pobranie przez HACS
-
-Jeśli masz tylko ZIP, najpierw opublikuj jego zawartość na GitHub według
-[PUBLISHING_HACS.md](PUBLISHING_HACS.md). To jednorazowe przygotowanie
-repozytorium. HACS nie instaluje bezpośrednio lokalnego ZIP-a.
-
-W HACS otwórz **menu > Custom repositories / Repozytoria niestandardowe**.
-Dodaj adres publicznego repozytorium, wybierając **Integration**.
-Otwórz pozycję **Hierarchical Tasks**, pobierz, następnie wykonaj **pełny
-restart Home Assistanta**.
-
-HACS instaluje integrację razem z kartą. Nie dodawaj osobnego repozytorium
-Dashboard. Pobranie plików przez HACS nie konfiguruje automatycznie integracji.
-
-## 2. Dodanie integracji
-
-**Ustawienia > Urządzenia i usługi > Dodaj integrację > Hierarchical Tasks**.
-Przy pierwszej próbie pozostaw tworzenie przykładowych danych włączone.
-Powstanie lista `zakupy`, kategorie `warzywniak`, `piekarnia` oraz produkty.
-
-**0 encji jest prawidłowe**: ta integracja ma własny model hierarchiczny,
-własną kartę i akcje `hierarchical_tasks.*`. Nie tworzy encji `todo.*`.
-Nie wymaga wpisu w `configuration.yaml`.
-
-Domyślny dostęp mają administratorzy. Udostępnianie normalnym użytkownikom
-włączysz w opcjach integracji; obejmuje wszystkie listy.
-
-## 3. Jednorazowe dodanie zasobu karty
-
-**Ustawienia > Panele / Dashboards > menu > Zasoby / Resources**.
-Gdy nie widać tej pozycji, sprawdź tryb zaawansowany profilu administratora.
-Dodaj:
-
-```text
-URL: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.1.2
-Typ: Moduł JavaScript / JavaScript Module
-```
-
-Dodaj tylko jeden taki zasób. Przy aktualizacji **edytuj istniejący wpis**,
-nie dodawaj drugiego obok `?v=0.1.0`.
-Integracja sama serwuje plik; nie kopiujesz go do `www` i nie używasz
-adresu `/hacsfiles/`. HACS pobrał go jako część integracji, nie osobną kartę.
-Odśwież stronę HA po zapisaniu zasobu.
-
-Dla dashboardów z zasobami zarządzanymi w YAML zobacz `README.md`.
-Nie zmieniaj sposobu zarządzania zasobami bez zachowania innych swoich kart.
-
-## 4. Karta na dashboardzie
-
-Dodaj kartę ręczną i wklej:
+1. Dodaj publiczne repozytorium jako **HACS -> Custom repositories -> Integration**.
+2. Pobierz Hierarchical Tasks.
+3. Wykonaj pełny restart Home Assistant.
+4. Dodaj integrację w **Ustawienia -> Urządzenia i usługi -> Dodaj integrację**.
+5. Dodaj kartę ręczną do dashboardu:
 
 ```yaml
 type: custom:hierarchical-tasks-card
-title: Moje zadania
+title: Zadania
 hide_completed: false
 confirm_bulk: true
 ```
 
-To karta z przełącznikiem list i możliwością tworzenia kolejnych.
-Dla widoku tylko przykładowej listy zakupów dodaj:
+Od 0.2.0 **nie dodawaj zasobu JS ręcznie**. Integracja rejestruje i ładuje dołączoną
+kartę podczas startu HA.
+
+## Aktualizacja z 0.1.x i błąd "Custom element doesn't exist"
+
+Po zainstalowaniu 0.2.0:
+
+1. Wejdź w **Ustawienia -> Dashboardy -> Zasoby / Resources**.
+2. Usuń ręczny wpis zaczynający się od
+   `/hierarchical_tasks/hierarchical-tasks-card.js`.
+3. Wykonaj **pełny restart Home Assistant** - samo przeładowanie YAML nie wystarczy.
+4. W przeglądarce użyj twardego odświeżenia. W aplikacji HA zamknij i otwórz
+   frontend ponownie.
+5. Użyj karty `type: custom:hierarchical-tasks-card`.
+
+Jeśli błąd pozostaje, otwórz w przeglądarce:
+`/hierarchical_tasks/hierarchical-tasks-card.js?v=0.2.0`. Powinien pojawić się kod JS,
+a nie 404. Sprawdź też log Home Assistant podczas startu integracji.
+
+## Tworzenie list
+
+Użyj karty **bez** `list_id`:
 
 ```yaml
-list_id: zakupy
+type: custom:hierarchical-tasks-card
+title: Wszystkie listy
 ```
 
-`list_id` to ID listy, nie nazwa ani encja HA.
+Administrator zobaczy `+ Lista`. Karta z `list_id: zakupy` jest widokiem jednej
+konkretnej listy i celowo nie pokazuje przycisku tworzenia kolejnej.
 
-## Aktualizacja z 0.1.0 bez utraty list
+## Udostępnianie użytkownikom
 
-Wydanie 0.1.2 zachowuje domenę `hierarchical_tasks`, format danych,
-identyfikatory, API i ścieżkę zapisu z 0.1.0.
-Nie jest wymagana migracja bazy.
+Administrator:
 
-1. Zrób kopię zapasową HA i eksport list z karty.
-2. Dodaj opublikowane repozytorium w HACS jako Integration i pobierz 0.1.2.
-   Jeśli HACS zgłosi istniejący folder z instalacji ręcznej, zachowaj kopię
-   plików i usuń/zmień nazwę wyłącznie katalogu kodu
-   `custom_components/hierarchical_tasks`, po zatrzymaniu HA. Przenieś kopię
-   poza `custom_components`. Uruchom HA (może tymczasowo pokazać brak
-   integracji), pobierz pakiet w działającym HACS, a następnie jeszcze raz
-   zrestartuj HA.
-3. **Nie usuwaj wpisu integracji** w Urządzeniach i usługach.
-   Nie usuwaj ani nie zmieniaj pliku danych:
+1. wybiera listę,
+2. otwiera `...` obok nazwy listy,
+3. wybiera **Udostępnianie...**,
+4. ustawia dla każdego użytkownika `Brak dostępu`, `Tylko odczyt` lub `Edycja`,
+5. zapisuje.
 
-   ```text
-   /config/.storage/hierarchical_tasks.json
-   ```
+Administratorzy HA są zawsze administratorami również w Hierarchical Tasks.
+Użytkownicy z dostępem `Edycja` mogą zmieniać zawartość listy, ale nie mogą tworzyć,
+usuwać ani udostępniać całych list.
 
-4. Zrestartuj HA, zmień parametr istniejącego zasobu na `?v=0.1.2`
-   i przeładuj frontend. Dotychczasowy YAML karty pozostaje poprawny.
+## Dane
 
-Plik z danymi leży poza katalogiem kodu aktualizowanym przez HACS.
-Zasób karty nadal rejestrujesz ręcznie; ta wersja nie modyfikuje
-konfiguracji dashboardu bez Twojej zgody.
+Dane pozostają w:
 
-## Awaryjnie: instalacja ręczna
+```text
+/config/.storage/hierarchical_tasks.json
+```
 
-Pełny kod pozostaje w ZIP-ie. Po jednorazowym uzupełnieniu metadanych
-repozytorium możesz skopiować sam folder
-`custom_components/hierarchical_tasks` do
-`/config/custom_components/hierarchical_tasks`, zrestartować HA i wykonać
-kroki 2-4. Nie trzeba instalować zależności `pip` lub `npm` w HA.
-
-## Test odbiorczy
-
-Otwórz kartę w dwóch oknach. Zaznacz Kapustę: w obu oknach WARZYWNIAK
-powinien pokazać częściowe wykonanie. Zaznacz kategorię, sprawdź
-potwierdzenie zbiorczej zmiany, dodawanie, usuwanie i cofanie.
-Następnie przeładuj stronę i zrestartuj HA, aby sprawdzić zachowanie danych.
-
-Przy błędzie zachowaj wersję HA/HACS, fragment logów integracji oraz
-komunikat z konsoli przeglądarki. Nie publikuj tokenów ani prywatnych list.
-Więcej diagnostyki i wszystkie opcje karty: `README.md`.
+Przed aktualizacją testową warto wykonać kopię zapasową. Nie edytuj tego pliku przy
+działającym Home Assistant.

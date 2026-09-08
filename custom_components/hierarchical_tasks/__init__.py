@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -12,7 +13,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.typing import ConfigType
 
 from . import services, websocket
-from .const import CARD_URL, CONF_EXAMPLE, CONF_SHARE, DOMAIN, SIGNAL_UPDATED, STORAGE_FILE
+from .const import CARD_URL, CONF_EXAMPLE, DOMAIN, SIGNAL_UPDATED, STORAGE_FILE, VERSION
 from .model import TaskError, TaskManager, initial_data
 from .runtime import Runtime
 from .storage import read_document, write_document
@@ -22,7 +23,7 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Register actions, WS commands and public *code only* static resource."""
+    """Register actions, WebSocket commands and the bundled frontend card."""
     hass.data.setdefault(DOMAIN, {})
     await hass.http.async_register_static_paths([
         StaticPathConfig(
@@ -31,6 +32,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             False,
         )
     ])
+    # Load the bundled card globally. This removes the old manual Lovelace
+    # Resources step that could lead to "Custom element doesn't exist".
+    add_extra_js_url(hass, f"{CARD_URL}?v={VERSION}")
     services.async_register(hass)
     websocket.async_register(hass)
     return True
@@ -54,21 +58,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     def notify() -> None:
         async_dispatcher_send(hass, SIGNAL_UPDATED)
 
-    runtime = Runtime(
-        TaskManager(data, save, notify),
-        entry.options.get(CONF_SHARE, entry.data.get(CONF_SHARE, False)),
-    )
-    hass.data[DOMAIN]["runtime"] = runtime
-    entry.async_on_unload(entry.add_update_listener(async_options_updated))
+    hass.data[DOMAIN]["runtime"] = Runtime(TaskManager(data, save, notify))
     notify()
     return True
-
-
-async def async_options_updated(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    runtime = hass.data[DOMAIN].get("runtime")
-    if runtime is not None:
-        runtime.share_with_users = entry.options.get(CONF_SHARE, entry.data.get(CONF_SHARE, False))
-        async_dispatcher_send(hass, SIGNAL_UPDATED)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

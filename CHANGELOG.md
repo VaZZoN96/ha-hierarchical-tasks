@@ -1,32 +1,27 @@
 # Changelog
 
+## 0.2.0
+
+- dodano ACL per lista i per użytkownik Home Assistant,
+- trzy poziomy dostępu w UI: brak / tylko odczyt / edycja,
+- backend filtruje niewidoczne listy i egzekwuje prawa zapisu,
+- administratorzy zawsze mają pełny dostęp,
+- dodano menu `Udostępnianie...` z listą użytkowników HA,
+- karta jest automatycznie rejestrowana przez integrację; ręczny Lovelace Resource nie jest wymagany,
+- zachowano tworzenie nowych list przez `+ Lista` w karcie bez stałego `list_id`,
+- format danych podniesiono do schema v2; v1 migruje bez utraty list,
+- migracja v1 zachowawczo ustawia stare listy jako nieudostępnione zwykłym użytkownikom,
+- API karty podniesiono do v2,
+- dodano testy ACL oraz scenariusz przeglądarkowy tworzenia i udostępniania listy.
 
 ## 0.1.2
 
-- Fix hassfest CONFIG_SCHEMA requirement for config-entry-only integration.
-- Configure manifest metadata for VaZZoN96/ha-hierarchical-tasks.
-- Simplify hacs.json to supported required/minimum keys.
-- Update GitHub Actions checkout/setup actions to Node.js 24-capable major versions.
-- Add repository layout diagnostics to validation workflow.
+- poprawki HACS/hassfest i metadanych repozytorium.
 
-## 0.1.1 - 2026-09-08
+## 0.1.1
 
-Wydanie przygotowujące dystrybucję przez HACS; nadal do testów instalacyjnych.
+- przygotowanie projektu do dystrybucji przez HACS.
 
-- Dodano `hacs.json`; integracja wraz z kartą instalowana jako jeden pakiet.
-- Dodano pola `documentation`, `issue_tracker` i niepusty `codeowners` w manifeście.
-  Rzeczywiste wartości ustawia jednorazowo skrypt lub workflow na GitHub.
-- Dodano lokalne ikony `brand/icon.png` i `brand/icon@2x.png` pod licencją MIT.
-- Dodano workflow **Prepare repository**, walidację HACS i hassfest oraz Dependabot.
-- Dodano lokalny walidator paczki i testy konfiguracji repozytorium.
-- Zaktualizowano wersję backendu/karty i URL przykładowego zasobu do 0.1.1.
-- Dodano instrukcję publikacji, instalacji w HACS i aktualizacji z 0.1.0.
+## 0.1.0
 
-**Nie zmieniono logiki list, formatu danych, domeny integracji ani API.**
-Nie dodano automatycznej rejestracji zasobu karty ani encji `todo.*`.
-
-## 0.1.0 - 2026-09-08
-
-Pierwsze testowe wydanie: backend HA, karta, kategorie, podkategorie,
-trójstanowe checkboxy, lokalny zapis, współdzielenie, automatyzacje,
-przenoszenie, cofanie i eksport/import. Instalacja ręczna.
+- pierwsza wersja testowa.

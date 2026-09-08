@@ -1,4 +1,4 @@
-"""Actions for automations; the same domain validation and permission checks."""
+"""Actions for automations; same validation and per-list permission checks."""
 from __future__ import annotations
 
 import logging
@@ -10,7 +10,7 @@ from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 
 from .const import DOMAIN
 from .model import FIELDS, TaskError
-from .runtime import authorize, get_runtime
+from .runtime import authorize_operation, data_for_user, get_runtime
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ def field_validator(key: str):
         return vol.All(int, vol.Range(min=0))
     if key == "completed":
         return bool
-    if key == "document":
+    if key in ("document", "access"):
         return dict
     return str
 
@@ -33,14 +33,16 @@ def async_register(hass: HomeAssistant) -> None:
         try:
             runtime = get_runtime(hass)
             user_id = call.context.user_id
-            if user_id is not None:
-                user = await hass.auth.async_get_user(user_id)
-                authorize(runtime, user, write=call.service != "get_data", admin=call.service == "import_data")
-            # Calls without a user context are trusted HA automations/scripts.
+            user = await hass.auth.async_get_user(user_id) if user_id is not None else None
+
             if call.service == "get_data":
-                return runtime.manager.snapshot()
+                # Calls without user context are trusted HA automations/scripts.
+                return runtime.manager.snapshot() if user is None else data_for_user(runtime, user)
+
             data = dict(call.data)
             revision = data.pop("expected_revision", None)
+            if user is not None:
+                authorize_operation(runtime, user, call.service, data)
             result = await runtime.manager.execute(call.service, data, user_id or "system", revision)
             return result if call.return_response else None
         except TaskError as err:

@@ -4,26 +4,14 @@
     "step": {
       "user": {
         "title": "Hierarchical Tasks",
-        "description": "Local lists, categories and individually checkable tasks. One integration contains all your lists. Sharing is off by default.",
+        "description": "Local hierarchical lists. Create lists in the dashboard card and share each list with selected Home Assistant users.",
         "data": {
-          "seed_example": "Create the example shopping list (only on first install)",
-          "share_with_users": "Share ALL lists with regular Home Assistant users"
+          "seed_example": "Create the example shopping list (only on first install)"
         }
       }
     },
     "abort": {
       "already_configured": "Hierarchical Tasks is already configured."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Access to lists",
-        "description": "Off: administrators only. On: regular users can read/edit all lists; HA read-only users can only read. Restricted custom entity policies are not supported. No separate per-list permissions.",
-        "data": {
-          "share_with_users": "Share ALL lists with regular Home Assistant users"
-        }
-      }
     }
   },
   "services": {
@@ -74,6 +62,24 @@
         "list_id": {
           "name": "List ID",
           "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        }
+      }
+    },
+    "set_list_access": {
+      "name": "Set list sharing",
+      "description": "Admin only. Replace the per-user access map for one list.",
+      "fields": {
+        "expected_revision": {
+          "name": "Expected revision",
+          "description": "Optional optimistic concurrency check."
+        },
+        "list_id": {
+          "name": "List ID",
+          "description": "List whose sharing rules will be changed."
+        },
+        "access": {
+          "name": "Access map",
+          "description": "Object: Home Assistant user ID -> read or write."
         }
       }
     },

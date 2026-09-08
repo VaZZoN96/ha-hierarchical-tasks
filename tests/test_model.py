@@ -230,6 +230,26 @@ class ModelTests(unittest.IsolatedAsyncioTestCase):
         with self.assertCode("already_exists"):
             await self.op("add_item", list_id="zakupy", name="Existing", node_id="kapusta")
 
+    async def test_set_list_access_roundtrip_and_validation(self):
+        result = await self.op("set_list_access", list_id="zakupy", access={"user-a": "read", "user-b": "write"})
+        self.assertEqual(result["shared_users"], 2)
+        self.assertEqual(self.manager.snapshot()["lists"]["zakupy"]["access"], {"user-a": "read", "user-b": "write"})
+        with self.assertCode("invalid_input"):
+            await self.op("set_list_access", list_id="zakupy", access={"user": "owner"})
+        with self.assertCode("invalid_input"):
+            await self.op("set_list_access", list_id="zakupy", access=[])
+
+    async def test_legacy_schema_migrates_to_private_v2(self):
+        legacy = m.initial_data()
+        legacy["schema"] = 1
+        for task_list in legacy["lists"].values():
+            task_list.pop("access")
+        migrated = m.validate_document(legacy)
+        self.assertEqual(migrated["schema"], 2)
+        self.assertEqual(migrated["lists"]["zakupy"]["access"], {})
+        self.assertEqual(legacy["schema"], 1)
+        self.assertNotIn("access", legacy["lists"]["zakupy"])
+
     async def test_depth_limit(self):
         parent = None
         for index in range(m.MAX_DEPTH):

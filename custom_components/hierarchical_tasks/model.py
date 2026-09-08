@@ -13,7 +13,8 @@ import logging
 from typing import Any
 from uuid import uuid4
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+LEGACY_SCHEMA_VERSION = 1
 MAX_LISTS = 30
 MAX_NODES = 2000
 MAX_DEPTH = 16
@@ -52,6 +53,30 @@ def integer(value: Any, minimum: int = 0) -> int:
     if type(value) is not int or value < minimum:
         fail(f"Expected an integer >= {minimum}.")
     return value
+
+
+def valid_user_id(value: Any) -> str:
+    """Validate a Home Assistant user id without assuming its internal format."""
+    if not isinstance(value, str) or not 1 <= len(value) <= 128:
+        fail("User ID must contain 1-128 characters.")
+    if any(ord(char) < 32 or 0xD800 <= ord(char) <= 0xDFFF for char in value):
+        fail("User ID contains invalid characters.")
+    return value
+
+
+def valid_access(value: Any) -> dict[str, str]:
+    """Validate explicit per-list user roles."""
+    if not isinstance(value, dict):
+        fail("access must be an object mapping user IDs to read/write.")
+    if len(value) > 100:
+        fail("A list can be shared with at most 100 users.")
+    result: dict[str, str] = {}
+    for user_id, role in value.items():
+        valid_user_id(user_id)
+        if role not in ("read", "write"):
+            fail("List access role must be read or write.")
+        result[user_id] = role
+    return result
 
 
 def empty_data() -> dict[str, Any]:
@@ -104,24 +129,41 @@ def aggregate(nodes: dict, node_id: str | None = None) -> dict[str, Any]:
 
 
 def validate_document(raw: Any) -> dict[str, Any]:
-    """Strict validation of imports and disk data; never silently discard data."""
+    """Strict validation plus an in-memory v1 -> v2 ACL migration.
+
+    Schema v1 contained only id/name/nodes for each list. Schema v2 adds an
+    explicit ``access`` mapping. Old files are accepted and normalized in
+    memory; the next successful mutation persists v2 atomically.
+    """
     if not isinstance(raw, dict) or set(raw) != {"schema", "revision", "lists"}:
         fail("Invalid document. Required fields: schema, revision, lists.")
-    if type(raw["schema"]) is not int or raw["schema"] != SCHEMA_VERSION:
+    if type(raw["schema"]) is not int or raw["schema"] not in (LEGACY_SCHEMA_VERSION, SCHEMA_VERSION):
         fail("Unsupported data schema. Do not overwrite the original file.")
-    integer(raw["revision"])
-    lists = raw["lists"]
+
+    doc = deepcopy(raw)
+    legacy = doc["schema"] == LEGACY_SCHEMA_VERSION
+    if legacy:
+        doc["schema"] = SCHEMA_VERSION
+
+    integer(doc["revision"])
+    lists = doc["lists"]
     if not isinstance(lists, dict) or len(lists) > MAX_LISTS:
         fail(f"Expected at most {MAX_LISTS} lists.")
     total_nodes = 0
     for list_id, task_list in lists.items():
         valid_id(list_id)
-        if not isinstance(task_list, dict) or set(task_list) != {"id", "name", "nodes"}:
+        if not isinstance(task_list, dict):
             fail("Invalid list fields.")
+        expected = {"id", "name", "nodes"} if legacy else {"id", "name", "nodes", "access"}
+        if set(task_list) != expected:
+            fail("Invalid list fields.")
+        if legacy:
+            task_list["access"] = {}
         if task_list["id"] != list_id:
             fail("List ID does not match its key.")
         if valid_name(task_list["name"]) != task_list["name"]:
             fail("Stored names must not have surrounding whitespace.")
+        task_list["access"] = valid_access(task_list["access"])
         nodes = task_list["nodes"]
         if not isinstance(nodes, dict):
             fail("nodes must be an object.")
@@ -160,7 +202,7 @@ def validate_document(raw: Any) -> dict[str, Any]:
                 if len(seen) > MAX_DEPTH:
                     fail(f"Maximum tree depth: {MAX_DEPTH}.")
                 current = nodes[current]["parent_id"]
-    return deepcopy(raw)
+    return doc
 
 
 # Each operation rejects unknown fields, including misspelled automation keys.
@@ -168,6 +210,7 @@ FIELDS: dict[str, tuple[set[str], set[str]]] = {
     "create_list": ({"name"}, {"list_id"}),
     "rename_list": ({"list_id", "name"}, set()),
     "delete_list": ({"list_id"}, set()),
+    "set_list_access": ({"list_id", "access"}, set()),
     "add_item": ({"list_id", "name"}, {"kind", "parent_id", "node_id"}),
     "rename_item": ({"list_id", "node_id", "name"}, set()),
     "delete_item": ({"list_id", "node_id"}, set()),
@@ -203,7 +246,7 @@ def apply_operation(doc: dict, operation: str, data: dict) -> dict[str, Any]:
         list_id = valid_id(data.get("list_id", uuid4().hex))
         if list_id in lists:
             fail("List ID already exists.", "already_exists")
-        lists[list_id] = {"id": list_id, "name": valid_name(data["name"]), "nodes": {}}
+        lists[list_id] = {"id": list_id, "name": valid_name(data["name"]), "nodes": {}, "access": {}}
         return {"list_id": list_id}
     list_id = valid_id(data["list_id"])
     if list_id not in lists:
@@ -213,6 +256,9 @@ def apply_operation(doc: dict, operation: str, data: dict) -> dict[str, Any]:
     result: dict[str, Any] = {"list_id": list_id}
     if operation == "rename_list":
         task_list["name"] = valid_name(data["name"])
+    elif operation == "set_list_access":
+        task_list["access"] = valid_access(data["access"])
+        result["shared_users"] = len(task_list["access"])
     elif operation == "delete_list":
         del lists[list_id]
     elif operation == "add_item":

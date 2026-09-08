@@ -1,7 +1,7 @@
-/* Hierarchical Tasks 0.1.2 | MIT | No CDN, npm package or external requests. */
+/* Hierarchical Tasks 0.2.0 | MIT | No CDN, npm package or external requests. */
 (() => {
   "use strict";
-  const VERSION = "0.1.2";
+  const VERSION = "0.2.0";
   const TYPE = "hierarchical-tasks-card";
   const API = "hierarchical_tasks";
   const CSS = `
@@ -63,6 +63,11 @@
     .dialog-actions { justify-content:flex-end; margin-top:18px; }
     .menu-actions { display:grid; gap:8px; }
     .menu-actions button { text-align:start; }
+    .share-list { display:grid; gap:8px; margin:12px 0; }
+    .share-row { display:grid; grid-template-columns:minmax(0,1fr) 150px; gap:10px; align-items:center; padding:8px 0; border-bottom:1px solid var(--divider-color,#ddd); }
+    .share-row strong, .share-row span { overflow-wrap:anywhere; }
+    .share-row select { width:100%; }
+    @media (max-width:420px) { .share-row { grid-template-columns:1fr; } }
     .dialog-error { color:var(--error-color,#db4437); font-size:13px; line-height:1.5; }
     .dialog-error:empty { display:none; }
     .id-field { width:100%; font-family:monospace; font-size:12px !important; }
@@ -115,7 +120,7 @@
   function errorText(error) {
     const code = error?.code;
     if (code === "conflict") return "Dane zmieni\u0142y si\u0119 na innym urz\u0105dzeniu. Od\u015bwie\u017cono list\u0119. Sprawd\u017a j\u0105 i pon\u00f3w operacj\u0119.";
-    if (code === "forbidden") return "Brak uprawnie\u0144. Administrator mo\u017ce w\u0142\u0105czy\u0107 wsp\u00f3\u0142dzielenie w opcjach integracji.";
+    if (code === "forbidden") return "Brak uprawnie\u0144 do tej listy lub operacji. Administrator mo\u017ce zmieni\u0107 udost\u0119pnianie w menu listy.";
     if (code === "not_ready") return "Integracja nie jest uruchomiona. Dodaj Hierarchical Tasks w Ustawieniach HA lub sprawd\u017a jej dziennik.";
     if (code === "unknown_command") return "Home Assistant nie rozpoznaje integracji. Zainstaluj pliki, uruchom HA ponownie i dodaj integracj\u0119.";
     if (code === "storage_error") return "Nie zapisano zmian. Sprawd\u017a wolne miejsce na dysku i dziennik Home Assistanta.";
@@ -215,7 +220,7 @@
         this._dialog.replaceChildren();
         this._state = null; this._permissions = {};
         this._notice = errorText(event.error); this._error = true;
-      } else if (event.api_version !== 1) {
+      } else if (event.api_version !== 2) {
         this._state = null; this._permissions = {};
         this._notice = "Niezgodna wersja API. Zaktualizuj integracj\u0119 i plik karty razem."; this._error = true;
       } else {
@@ -244,8 +249,11 @@
         throw error;
       }
     }
-    get _editable() { return !!(this._state && this._online && this._permissions.write && !this._busy); }
-    get _list() { return this._state?.lists[this._config?.list_id || this._selected]; }
+    get _listId() { return this._config?.list_id || this._selected; }
+    get _list() { return this._state?.lists[this._listId]; }
+    get _listPermissions() { return this._permissions?.lists?.[this._listId] || {}; }
+    get _editable() { return !!(this._state && this._online && this._listPermissions.write && !this._busy); }
+    get _admin() { return !!this._permissions?.admin; }
 
     _render() {
       if (!this._config) return;
@@ -271,17 +279,20 @@
         }
         select.value = this._selected || "";
         select.addEventListener("change", () => { this._selected = select.value; this._notice = ""; this._render(); });
-        top.append(select, button("+ Lista", () => this._newList(), "", !this._editable));
+        top.append(select, button("+ Lista", () => this._newList(), "", !this._online || this._busy || !this._permissions.create_list));
       } else top.append(el("strong", "", list?.name || this._config.list_id));
-      if (list) top.append(button("\u22ef", () => this._listMenu(), "icon", this._busy));
+      if (list) {
+        const listMenu = button("\u22ef", () => this._listMenu(), "icon", this._busy);
+        listMenu.title = "Opcje listy"; listMenu.setAttribute("aria-label", `Opcje listy: ${list.name}`); top.append(listMenu);
+      }
       main.append(top);
       const toolbar = el("div", "toolbar");
-      toolbar.append(button("Cofnij", () => this._mutate("undo", {}), "", !this._editable || !this._permissions.undo));
+      toolbar.append(button("Cofnij", () => this._mutate("undo", {}), "", !this._online || this._busy || !this._permissions.undo));
       toolbar.append(button("Eksport", () => this._export(), "", this._busy));
-      if (this._permissions.import) toolbar.append(button("Import", () => this._import(), "", !this._editable));
+      if (this._permissions.import) toolbar.append(button("Import", () => this._import(), "", !this._online || this._busy));
       main.append(toolbar);
       if (!list) {
-        main.append(el("div", "empty", this._config.list_id ? "Nie ma listy o tym ID. Sprawd\u017a list_id w konfiguracji karty." : "Utw\u00f3rz swoj\u0105 pierwsz\u0105 list\u0119 przyciskiem + Lista."));
+        main.append(el("div", "empty", this._config.list_id ? "Nie ma tej listy albo nie masz do niej dost\u0119pu." : (this._permissions.create_list ? "Utw\u00f3rz swoj\u0105 pierwsz\u0105 list\u0119 przyciskiem + Lista." : "Administrator nie udost\u0119pni\u0142 Ci jeszcze \u017cadnej listy.")));
         return;
       }
       const stats = statsFor(list.nodes), all = stats.get(null);
@@ -299,7 +310,7 @@
           tree.append(this._row(node, depth, stats.get(node.id), list));
           if (node.kind === "category" && !this._collapsed.has(`${list.id}/${node.id}`)) {
             visit(node.id, depth + 1);
-            if (this._permissions.write) {
+            if (this._editable) {
               const add = el("div", "category-add"); add.style.marginInlineStart = `${Math.min(depth + 1, 5) * 12 + 28}px`;
               add.append(button("+ Zadanie", () => this._add("task", node.id), "", !this._editable));
               add.append(button("+ Podkategoria", () => this._add("category", node.id), "", !this._editable));
@@ -315,7 +326,7 @@
         this._dropTarget(drop, null, list); tree.append(drop);
       }
       main.append(tree);
-      if (this._permissions.write) {
+      if (this._editable) {
         const actions = el("div", "actions");
         actions.append(button("+ Zadanie", () => this._add("task", null), "primary", !this._editable));
         actions.append(button("+ Kategoria", () => this._add("category", null), "", !this._editable));
@@ -323,7 +334,7 @@
         main.append(actions);
       }
       const footer = el("div", "footer muted");
-      footer.append(el("span", "", `${all.done}/${all.total} wykonanych${this._permissions.write ? "" : " \u00b7 tylko odczyt"}`));
+      footer.append(el("span", "", `${all.done}/${all.total} wykonanych${this._listPermissions.write ? "" : " \u00b7 tylko odczyt"}`));
       footer.append(el("span", "", this._busy ? "Zapisywanie\u2026" : `v${VERSION} \u00b7 rev ${this._state.revision}`));
       main.append(footer);
     }
@@ -386,7 +397,7 @@
     }
 
     async _mutate(operation, data, revision = this._state?.revision) {
-      if (!this._editable) return false;
+      if (!this._state || !this._online || this._busy) return false;
       this._busy = true; this._notice = ""; this._error = false; this._render();
       const formButtons = [...this._dialog.querySelectorAll("button")];
       formButtons.forEach(b => { b.dataset.wasDisabled = String(b.disabled); b.disabled = true; });
@@ -498,7 +509,8 @@
     }
     _listMenu() {
       const list = this._list, dialog = this._open(list.name), actions = el("div", "menu-actions");
-      if (this._permissions.write) {
+      if (this._listPermissions.manage) {
+        actions.append(button("Udost\u0119pnianie...", () => this._shareList()));
         actions.append(button("Zmie\u0144 nazw\u0119 listy", () => this._rename()));
         actions.append(button("Usu\u0144 list\u0119", () => this._delete(), "danger"));
       }
@@ -506,9 +518,61 @@
       this._field(actions, "ID listy do konfiguracji karty / automatyzacji", id);
       actions.append(button("Zamknij", () => this._close())); dialog.append(actions);
     }
+    async _shareList() {
+      const list = this._list;
+      if (!list || !this._listPermissions.manage || !this._connection?.connected) return;
+      const revision = this._state.revision;
+      const dialog = this._open(`Udostępnianie: ${list.name}`);
+      dialog.append(el("p", "muted", "Administratorzy HA zawsze mają pełny dostęp. Dla pozostałych użytkowników wybierz: brak, tylko odczyt albo edycja."));
+      const loading = el("p", "muted", "Pobieranie użytkowników Home Assistant…"); dialog.append(loading);
+      let users;
+      try {
+        users = await this._connection.sendMessagePromise({ type: `${API}/users` });
+      } catch (error) {
+        loading.textContent = errorText(error);
+        loading.className = "dialog-error";
+        dialog.append(button("Zamknij", () => this._close()));
+        return;
+      }
+      if (!dialog.open) return;
+      loading.remove();
+      const form = el("form"), rows = el("div", "share-list");
+      const access = list.access || {};
+      const controls = new Map();
+      const visibleUsers = (users || []).filter(user => !user.system_generated);
+      for (const user of visibleUsers) {
+        const row = el("div", "share-row"), label = el("div");
+        const title = user.name || user.id;
+        label.append(el("strong", "", title));
+        const details = [];
+        if (!user.is_active) details.push("konto nieaktywne");
+        const isAdmin = !!user.is_admin;
+        if (isAdmin) details.push("administrator – zawsze ma dostęp");
+        if (details.length) label.append(el("div", "muted", details.join(" · ")));
+        const select = el("select");
+        for (const [value, text] of [["", "Brak dostępu"], ["read", "Tylko odczyt"], ["write", "Edycja"]]) {
+          const option = el("option", "", text); option.value = value; select.append(option);
+        }
+        select.value = isAdmin ? "" : (access[user.id] || "");
+        select.disabled = isAdmin || !user.is_active;
+        controls.set(user.id, { select, isAdmin });
+        row.append(label, select); rows.append(row);
+      }
+      if (!visibleUsers.length) rows.append(el("div", "empty", "Nie znaleziono zwykłych użytkowników Home Assistant."));
+      form.append(rows);
+      const actions = el("div", "dialog-actions"), save = el("button", "primary", "Zapisz udostępnianie"); save.type = "submit";
+      actions.append(button("Anuluj", () => this._close()), save); form.append(actions); dialog.append(form);
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+        const next = {};
+        for (const [userId, item] of controls) if (!item.isAdmin && item.select.value) next[userId] = item.select.value;
+        if (await this._mutate("set_list_access", { list_id: list.id, access: next }, revision)) this._close();
+      });
+    }
+
     _itemMenu(node) {
       const list = this._list, revision = this._state.revision, dialog = this._open(node.name), actions = el("div", "menu-actions");
-      if (this._permissions.write) {
+      if (this._editable) {
         actions.append(button("Zmie\u0144 nazw\u0119", () => this._rename(node)));
         actions.append(button("Przenie\u015b do kategorii / listy\u2026", () => this._move(node)));
         const siblings = ordered(list.nodes, node.parent_id), index = siblings.findIndex(n => n.id === node.id);
@@ -531,7 +595,7 @@
       const source = this._list;
       this._form("Przenie\u015b element", form => {
         const target = el("select");
-        for (const list of Object.values(this._state.lists)) { const option = el("option", "", list.name); option.value = list.id; target.append(option); }
+        for (const list of Object.values(this._state.lists).filter(item => this._permissions?.lists?.[item.id]?.write)) { const option = el("option", "", list.name); option.value = list.id; target.append(option); }
         target.value = source.id; this._field(form, "Lista docelowa", target);
         const parentBox = el("div"); form.append(parentBox);
         let parent;
@@ -553,7 +617,7 @@
       const url = URL.createObjectURL(blob), link = el("a");
       link.href = url; link.download = `hierarchical-tasks-${new Date().toISOString().slice(0, 10)}.json`;
       this.shadowRoot.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
-      this._notice = "Eksport zawiera WSZYSTKIE listy. Zachowaj plik jako kopi\u0119 zapasow\u0105."; this._error = false; this._render();
+      this._notice = this._admin ? "Eksport zawiera wszystkie listy wraz z ustawieniami udost\u0119pniania." : "Eksport zawiera tylko listy widoczne dla Twojego konta."; this._error = false; this._render();
     }
     _import() {
       const picker = el("input"); picker.type = "file"; picker.accept = ".json,application/json";
@@ -562,7 +626,7 @@
         try {
           if (file.size > 2000000) throw new Error("Plik jest za du\u017cy. Limit wynosi 2 MB.");
           const document = JSON.parse(await file.text()), revision = this._state.revision;
-          if (!document || document.schema !== 1 || !document.lists) throw new Error("Nieprawid\u0142owy plik eksportu.");
+          if (!document || ![1, 2].includes(document.schema) || !document.lists) throw new Error("Nieprawid\u0142owy plik eksportu.");
           this._confirm("Zast\u0105pi\u0107 WSZYSTKIE listy?", "Import zast\u0105pi ca\u0142\u0105 zawarto\u015b\u0107 integracji, nie tylko bie\u017c\u0105c\u0105 list\u0119. Najpierw wykonaj eksport obecnych danych.",
             () => this._mutate("import_data", { document }, revision), true);
         } catch (error) { this._notice = errorText(error); this._error = true; this._render(); }

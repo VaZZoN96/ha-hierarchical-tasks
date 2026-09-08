@@ -70,6 +70,31 @@ delete_list:
       required: true
       selector:
         text: {}
+set_list_access:
+  name: Set list sharing
+  description: Admin only. Replace the per-user access map for one list.
+  fields:
+    expected_revision:
+      name: Expected revision
+      description: Optional optimistic concurrency check.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2147483647
+          mode: box
+    list_id:
+      name: List ID
+      description: List whose sharing rules will be changed.
+      required: true
+      selector:
+        text: {}
+    access:
+      name: Access map
+      description: Object mapping Home Assistant user IDs to read or write.
+      required: true
+      selector:
+        object: {}
 add_item:
   name: Add item
   description: Add a task or category to a list.

@@ -11,7 +11,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
 from .const import DOMAIN, SIGNAL_UPDATED
 from .model import TaskError
-from .runtime import authorize, get_runtime, payload
+from .runtime import authorize_operation, get_runtime, payload
 
 _LOGGER = logging.getLogger(__name__)
 REVISION = vol.All(int, vol.Range(min=0))
@@ -37,18 +37,39 @@ def ws_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnection
 
     @callback
     def updated() -> None:
-        # Permissions and runtime are looked up AGAIN on every notification,
-        # including unloading/reloading and changes to the sharing option.
+        # Re-evaluate ACLs on every notification, including sharing changes.
         try:
             event = payload(get_runtime(hass), connection.user)
         except TaskError as err:
             event = {"available": False, "error": {"code": err.code, "message": str(err)}}
         connection.send_event(msg["id"], event)
 
-    # No await between snapshot and subscription: no lost-update window.
     connection.subscriptions[msg["id"]] = async_dispatcher_connect(hass, SIGNAL_UPDATED, updated)
     connection.send_result(msg["id"])
     connection.send_event(msg["id"], first)
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/users"})
+@websocket_api.async_response
+async def ws_users(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Return only the minimal user metadata needed by the ACL editor."""
+    if not connection.user.is_active or not connection.user.is_admin:
+        connection.send_error(msg["id"], "forbidden", "Only an administrator can manage sharing.")
+        return
+    users = await hass.auth.async_get_users()
+    connection.send_result(
+        msg["id"],
+        [
+            {
+                "id": user.id,
+                "name": user.name or user.id,
+                "is_active": bool(user.is_active),
+                "is_admin": bool(user.is_admin),
+            }
+            for user in users
+            if not user.system_generated
+        ],
+    )
 
 
 @websocket_api.websocket_command({
@@ -61,7 +82,7 @@ def ws_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnection
 async def ws_mutate(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
     try:
         runtime = get_runtime(hass)
-        authorize(runtime, connection.user, write=True, admin=msg["operation"] == "import_data")
+        authorize_operation(runtime, connection.user, msg["operation"], msg["data"])
         result = await runtime.manager.execute(
             msg["operation"], msg["data"], connection.user.id, msg["expected_revision"]
         )
@@ -78,5 +99,5 @@ async def ws_mutate(hass: HomeAssistant, connection: websocket_api.ActiveConnect
 
 @callback
 def async_register(hass: HomeAssistant) -> None:
-    for handler in (ws_get, ws_subscribe, ws_mutate):
+    for handler in (ws_get, ws_subscribe, ws_users, ws_mutate):
         websocket_api.async_register_command(hass, handler)

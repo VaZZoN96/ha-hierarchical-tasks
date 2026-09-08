@@ -1,3 +1,4 @@
-# Dashboard resource; add in Settings > Dashboards > Resources.
-url: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.1.2
+# Fallback diagnostyczny dla 0.2.0. Normalnie NIE dodawaj tego zasobu ręcznie:
+# integracja ładuje kartę automatycznie po pełnym restarcie HA.
+url: /hierarchical_tasks/hierarchical-tasks-card.js?v=0.2.0
 type: module

@@ -4,26 +4,14 @@
     "step": {
       "user": {
         "title": "Hierarchical Tasks",
-        "description": "Lokalne listy, kategorie i zadania z checkboxami. Jedna integracja zawiera wszystkie listy. Domyślnie dostęp mają tylko administratorzy.",
+        "description": "Lokalne listy hierarchiczne. Listy tworzysz w karcie dashboardu i każdą z nich udostępniasz wybranym użytkownikom Home Assistant.",
         "data": {
-          "seed_example": "Utwórz przykładowe zakupy (tylko przy pierwszej instalacji)",
-          "share_with_users": "Udostępnij WSZYSTKIE listy zwykłym użytkownikom HA"
+          "seed_example": "Utwórz przykładowe zakupy (tylko przy pierwszej instalacji)"
         }
       }
     },
     "abort": {
       "already_configured": "Integracja Hierarchical Tasks jest już skonfigurowana."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Dostęp do list",
-        "description": "Wyłączone: tylko administratorzy. Włączone: zwykli użytkownicy mogą czytać/edytować wszystkie listy; konta HA tylko do odczytu mogą je czytać. Brak osobnych uprawnień do poszczególnych list. Niestandardowe ograniczenia do wybranych encji nie są obsługiwane.",
-        "data": {
-          "share_with_users": "Udostępnij WSZYSTKIE listy zwykłym użytkownikom HA"
-        }
-      }
     }
   },
   "services": {
@@ -74,6 +62,24 @@
         "list_id": {
           "name": "ID listy",
           "description": "ID of the list, e.g. zakupy. For create_list, omitted IDs are generated."
+        }
+      }
+    },
+    "set_list_access": {
+      "name": "Ustaw udostępnianie listy",
+      "description": "Tylko administrator. Zastępuje mapę uprawnień użytkowników dla jednej listy.",
+      "fields": {
+        "expected_revision": {
+          "name": "Oczekiwana rewizja",
+          "description": "Opcjonalna kontrola konfliktu zmian."
+        },
+        "list_id": {
+          "name": "ID listy",
+          "description": "Lista, dla której zmieniane są uprawnienia."
+        },
+        "access": {
+          "name": "Mapa dostępu",
+          "description": "Obiekt: ID użytkownika Home Assistant -> read lub write."
         }
       }
     },

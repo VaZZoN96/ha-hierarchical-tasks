@@ -73,10 +73,38 @@ async def fixture(browser, *, mobile=False, config=None, write=True):
     page.on("pageerror", lambda error: errors.append(str(error)))
 
     def payload():
-        return {"api_version": 1, "available": True, "data": manager.snapshot(), "permissions": {"write": write, "import": write, "undo": write and manager.can_undo("alice")}}
+        snapshot = manager.snapshot()
+        list_permissions = {
+            list_id: {
+                "read": True,
+                "write": write,
+                "manage": write,
+                "role": "admin" if write else "read",
+            }
+            for list_id in snapshot["lists"]
+        }
+        return {
+            "api_version": 2,
+            "available": True,
+            "data": snapshot,
+            "permissions": {
+                "admin": write,
+                "write": write,
+                "create_list": write,
+                "import": write,
+                "undo": write and manager.can_undo("alice"),
+                "lists": list_permissions,
+            },
+        }
 
     async def bridge(source, message):
         try:
+            if message["type"] == "hierarchical_tasks/users":
+                return {"ok": True, "result": [
+                    {"id": "alice", "name": "Alice", "is_active": True, "is_admin": True},
+                    {"id": "bob", "name": "Bob", "is_active": True, "is_admin": False},
+                    {"id": "disabled", "name": "Disabled", "is_active": False, "is_admin": False},
+                ]}
             if message["type"].endswith("/get"):
                 return {"ok": True, "result": payload()}
             result = await manager.execute(message["operation"], message["data"], "alice", message["expected_revision"])
@@ -274,7 +302,7 @@ async def case_readonly(browser):
 async def case_missing_fixed_list(browser):
     ctx, page, card, manager, errors = await fixture(browser, config={"list_id": "missing"})
     try:
-        await expect(card.locator(".empty")).to_contain_text("Nie ma listy o tym ID")
+        await expect(card.locator(".empty")).to_contain_text("Nie ma tej listy albo nie masz do niej dostępu")
         await expect(card.locator(".row")).to_have_count(0)
         assert not errors, errors
     finally:
@@ -320,6 +348,28 @@ async def case_export_import(browser):
         await ctx.close()
 
 
+async def case_create_list_and_sharing(browser):
+    ctx, page, card, manager, errors = await fixture(browser, mobile=True)
+    try:
+        await card.get_by_role("button", name="+ Lista", exact=True).click()
+        dialog = card.locator("dialog")
+        await dialog.get_by_label("Nazwa listy", exact=True).fill("Dom")
+        await dialog.get_by_label("ID listy (opcjonalne, np. dom)", exact=True).fill("dom")
+        await dialog.get_by_role("button", name="Zapisz", exact=True).click(); await idle(card)
+        assert manager.snapshot()["lists"]["dom"]["name"] == "Dom"
+        await expect(card.get_by_label("Wybierz listę", exact=True)).to_have_value("dom")
+
+        await card.get_by_role("button", name="Opcje listy: Dom", exact=True).click()
+        await dialog.get_by_role("button", name="Udostępnianie...", exact=True).click()
+        bob = dialog.locator(".share-row").filter(has_text="Bob")
+        await bob.locator("select").select_option("write")
+        await dialog.get_by_role("button", name="Zapisz udostępnianie", exact=True).click(); await idle(card)
+        assert manager.snapshot()["lists"]["dom"]["access"] == {"bob": "write"}
+        assert not errors, errors
+    finally:
+        await ctx.close()
+
+
 async def case_mobile_layout_preview(browser):
     ctx, page, card, manager, errors = await fixture(browser, mobile=True, config={"title": "Zakupy", "list_id": "zakupy"})
     try:
@@ -337,7 +387,7 @@ async def case_mobile_layout_preview(browser):
 async def main():
     cases = [case_checkbox, case_hidden_and_empty, case_add_and_draft_conflict, case_delete_undo, case_mobile_move, case_drag_drop,
              case_two_cards_and_cleanup, case_disconnect_reconnect, case_html_is_text, case_readonly, case_missing_fixed_list,
-             case_keyboard_and_clear, case_export_import, case_mobile_layout_preview]
+             case_keyboard_and_clear, case_export_import, case_create_list_and_sharing, case_mobile_layout_preview]
     results = []
     async with async_playwright() as playwright:
         path = os.environ.get("CHROMIUM_EXECUTABLE") or shutil.which("chromium")
