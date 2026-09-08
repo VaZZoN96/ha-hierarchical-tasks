@@ -1,13 +1,15 @@
-# Konfiguracja repozytorium
+# Repository metadata
 
-Archiwum nie jest opublikowanym repozytorium GitHub.
-Nie podano jeszcze nazwy konta ani repozytorium, dlatego manifest ma jawny
-znacznik `YOUR_GITHUB_USERNAME`. Nie wskazuje on prawdziwego opiekuna projektu.
+Repository: [VaZZoN96/ha-hierarchical-tasks](https://github.com/VaZZoN96/ha-hierarchical-tasks)
 
-Przed dodaniem do HACS wykonaj jeden z wariantów:
+Issue tracker: [https://github.com/VaZZoN96/ha-hierarchical-tasks/issues](https://github.com/VaZZoN96/ha-hierarchical-tasks/issues)
 
-- GitHub: **Actions > Prepare repository > Run workflow**.
-- Na komputerze: `python tools/configure_repository.py TWOJ_LOGIN/ha-hierarchical-tasks`.
+Code owner: `@VaZZoN96`
 
-Skrypt zastąpi ten plik konkretnymi adresami oraz uzupełni manifest i CODEOWNERS.
-Instrukcja krok po kroku: [PUBLISHING_HACS.md](PUBLISHING_HACS.md).
+For HACS: Custom repositories > `https://github.com/VaZZoN96/ha-hierarchical-tasks` > **Integration**.
+
+These values were configured locally; this file is NOT evidence that the
+repository is public, reachable or has passed the official HACS checks.
+Enable Issues, add a description and topics on GitHub, then run Validate.
+
+See [PUBLISHING_HACS.md](PUBLISHING_HACS.md) for complete instructions.
